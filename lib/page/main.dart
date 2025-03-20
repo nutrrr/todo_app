@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/page/splash_screen.dart';
+import 'splash_screen.dart'; // นำเข้าหน้าจอเริ่มต้น
+// นำเข้าหน้า todolist
 
 void main() {
   runApp(MyTodoListApp());

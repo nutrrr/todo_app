@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'add_task_page.dart';
 import 'detail_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 void main() {
   runApp(MyTodoListApp());
@@ -25,6 +27,25 @@ class TodoListPage extends StatefulWidget {
 class _TodoListPageState extends State<TodoListPage> {
   final Map<String, List<List<bool>>> tasks = {};
 
+/*
+  Future<void> _loadTaskData() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? taskDataString = prefs.getString('task_data');
+
+    if (taskDataString != null) {
+      Map<String, dynamic> taskData = jsonDecode(taskDataString);
+
+      setState(() {
+        _dateController.text = taskData['date'];
+        _details = taskData['details'];
+        _subjects = List<String>.from(taskData['subjects']);
+        _subjectStatus = List<String>.from(taskData['status'])
+            .map((status) => status == 'true')
+            .toList();
+      });
+    }
+  }
+*/
   void addTask(Map<String, dynamic> newTask) {
     setState(() {
       if (tasks.containsKey(newTask['date'])) {
@@ -75,7 +96,8 @@ class _TodoListPageState extends State<TodoListPage> {
             detailTasks.add({
               'subject': subjects[i],
               'status': taskList[0][i],
-              'details': 'รายละเอียดของ ${subjects[i]}...', // แก้ไขรายละเอียดตามต้องการ
+              'details':
+                  'รายละเอียดของ ${subjects[i]}...', // แก้ไขรายละเอียดตามต้องการ
             });
           }
           Navigator.push(

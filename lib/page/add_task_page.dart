@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
+import 'package:myapp/widgets/image_input.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
+import 'package:image_picker/image_picker.dart';
 
 class AddTaskPage extends StatefulWidget {
   @override
@@ -8,10 +13,11 @@ class AddTaskPage extends StatefulWidget {
 class _AddTaskPageState extends State<AddTaskPage> {
   final _formKey = GlobalKey<FormState>();
   final _dateController = TextEditingController();
-  final _detailsController = TextEditingController();
+  final _title = TextEditingController();
   final _newSubjectController = TextEditingController();
   List<bool> _subjectStatus = [];
   List<String> _subjects = [];
+  List<File?> _selectedImages = []; // to store your preview image
 
   void _addSubject() {
     setState(() {
@@ -28,13 +34,40 @@ class _AddTaskPageState extends State<AddTaskPage> {
     });
   }
 
+  takePicture() async {
+    final imagePicker = ImagePicker();
+    final pickedImage = await imagePicker.pickImage(
+        source: ImageSource.camera,
+        maxWidth: 600); // ImageSource can choose camera or gallery
+
+    if (pickedImage == null) {
+      return;
+    }
+
+    setState(() {
+      _selectedImages.add(File(pickedImage.path));
+    });
+  }
+
+  Future<void> _saveTaskData() async {
+    final prefs = await SharedPreferences.getInstance();
+    Map<String, dynamic> taskData = {
+      'title': _title.text,
+      'date': _dateController.text,
+      'details': _title.text,
+      'subjects': _subjects,
+      'status': _subjectStatus.map((status) => status.toString()).toList(),
+    };
+    await prefs.setString('task_data', jsonEncode(taskData));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF233F72), // สีพื้นหลังตามรูป
+      backgroundColor: Color(0xFF233F72),
       appBar: AppBar(
-        backgroundColor: Color(0xFF233F72), // สี AppBar ตามรูป
-        elevation: 0, // ไม่มีเงา
+        backgroundColor: Color(0xFF233F72),
+        elevation: 0,
         title: Text('เพิ่มกิจกรรม'),
       ),
       body: Padding(
@@ -55,7 +88,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
                 },
               ),
               TextFormField(
-                controller: _detailsController,
+                controller: _title,
                 decoration: InputDecoration(labelText: 'รายละเอียด'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -110,14 +143,10 @@ class _AddTaskPageState extends State<AddTaskPage> {
               ),
               SizedBox(height: 16),
               ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   if (_formKey.currentState!.validate()) {
-                    Navigator.pop(context, {
-                      'date': _dateController.text,
-                      'details': _detailsController.text,
-                      'subject': _subjects,
-                      'status': _subjectStatus,
-                    });
+                    await _saveTaskData();
+                    Navigator.pop(context);
                   }
                 },
                 child: Text('เพิ่ม'),
@@ -126,21 +155,21 @@ class _AddTaskPageState extends State<AddTaskPage> {
           ),
         ),
       ),
-      bottomNavigationBar: BottomAppBar( // แถบด้านล่างตามรูป
+      bottomNavigationBar: BottomAppBar(
         color: Color(0xFF233F72),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             IconButton(
-              icon: Icon(Icons.list, color: Colors.white), // ไอคอนรายการ
+              icon: Icon(Icons.list, color: Colors.white),
               onPressed: () {
-                Navigator.pop(context); // กลับไปหน้า todo_list
+                Navigator.pop(context);
               },
             ),
             IconButton(
               icon: Icon(Icons.camera_alt, color: Colors.white), // ไอคอนกล้อง
               onPressed: () {
-                // TODO: นำทางไปหน้ากล้อง
+                takePicture();
               },
             ),
           ],

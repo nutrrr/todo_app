@@ -90,7 +90,8 @@ class _TodoListPageState extends State<TodoListPage> {
             context,
             MaterialPageRoute(
               builder: (context) => DetailPage(
-                date: title,
+                title: title,
+                date: taskList['date'],
                 tasks: detailTasks,
               ),
             ),

@@ -13,73 +13,68 @@ class _TodoScreen extends State<TodoScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.blue[900],
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {},
-        ),
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(20.0),
-          child: Padding(
-            padding: const EdgeInsets.only(left: 16.0, bottom: 10),
-          ),
-        ),
-      ),
-      body: Container(
-        color: Colors.blue[900],
+      backgroundColor: Color(0xFF1E3A66),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Column(
-              children: [
-                Text(
-                  "Test",
-                  style: TextStyle(color: Colors.white, fontSize: 14),
-                  textAlign: TextAlign.left,
-                ),
-                Text(
-                  "Date 12/3/2025",
-                  style: TextStyle(color: Colors.white70, fontSize: 14),
-                  textAlign: TextAlign.left,
-                ),
-              ],
+            SizedBox(height: 40),
+            IconButton(
+              icon: Icon(Icons.arrow_back, color: Colors.white),
+              onPressed: () {},
             ),
             SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.blue[100],
-                  borderRadius: BorderRadius.circular(10),
+            TextFormField(
+              decoration: InputDecoration(
+                hintText: "Text...",
+                hintStyle: TextStyle(color: Colors.white70),
+                enabledBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white),
                 ),
-                child: ListTile(
-                  leading: Icon(
-                    Icons.check_box_outline_blank,
-                    color: Colors.green,
-                  ),
-                  title: Text(
-                    "Activity...",
-                    style: TextStyle(color: Colors.black),
+                focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white),
+                ),
+              ),
+              style: TextStyle(color: Colors.white),
+            ),
+            SizedBox(height: 8),
+            Text(
+              "Date 12/3/2025",
+              style: TextStyle(color: Colors.white70),
+            ),
+            SizedBox(height: 20),
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.blueGrey[200],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: ListTile(
+                leading: Checkbox(
+                  value: false,
+                  onChanged: (bool? value) {},
+                ),
+                title: TextFormField(
+                  decoration: InputDecoration(
+                    hintText: "Activity...",
+                    border: InputBorder.none,
                   ),
                 ),
               ),
             ),
-          ],
-        ),
-      ),
-      bottomNavigationBar: BottomAppBar(
-        color: Colors.blue[900],
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            IconButton(
-              icon: Icon(Icons.menu, color: Colors.white),
-              onPressed: () {},
-            ),
-            IconButton(
-              icon: Icon(Icons.camera_alt, color: Colors.white),
-              onPressed: () {},
+            Spacer(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                IconButton(
+                  icon: Icon(Icons.menu, color: Colors.white),
+                  onPressed: () {},
+                ),
+                IconButton(
+                  icon: Icon(Icons.camera_alt, color: Colors.white),
+                  onPressed: () {},
+                ),
+              ],
             ),
           ],
         ),

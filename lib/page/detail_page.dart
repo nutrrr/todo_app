@@ -42,7 +42,7 @@ class DetailPage extends StatelessWidget {
                 itemBuilder: (context, index) {
                   final task = tasks[index];
                   final bool status = task['status'] ?? false;
-                  final List<dynamic>? imagesList = task['images'];
+                  final List<dynamic>? imagesList = task['images'][index];
 
                   return Container(
                     margin: EdgeInsets.symmetric(vertical: 3.0),
@@ -81,7 +81,7 @@ class DetailPage extends StatelessWidget {
                                   final img = imagesList[imgIndex];
                                   if (img != null) {
                                     return Image.file(
-                                      img[imgIndex],
+                                      img,
                                       fit: BoxFit.cover,
                                       width: 64,
                                       height: 64,

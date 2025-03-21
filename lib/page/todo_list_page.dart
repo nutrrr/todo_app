@@ -26,25 +26,29 @@ class TodoListPage extends StatefulWidget {
 }
 
 class _TodoListPageState extends State<TodoListPage> {
-  final Map<String, List<List<bool>>> tasks = {};
+  //        ชื่อ          ชื่อข้อ    ข้อมูล
+  final Map<String, Map<String, dynamic>> tasks = {};
 
   void addTask(Map<String, dynamic> newTask) {
     setState(() {
-      if (tasks.containsKey(newTask['date'])) {
-        tasks[newTask['date']]!.add(List<bool>.from(newTask['status']));
-      } else {
-        tasks[newTask['date']!] = [List<bool>.from(newTask['status'])];
-      }
+      Map<String, dynamic> tempTask = {};
+      tempTask['date'] = newTask['date'];
+      tempTask['subject'] = List<String>.from(newTask['subject']);
+      tempTask['details'] = List<String>.from(newTask['details']);
+      tempTask['status'] = List<bool>.from(newTask['status']);
+      tempTask['images'] = List<List<File?>>.from(newTask['images']);
+
+      tasks[newTask['title']!] = tempTask;
     });
   }
 
-  Widget buildTaskCard(String date, List<List<bool>> taskList) {
+  Widget buildTaskCard(String title, Map<String, dynamic> taskList) {
     return Dismissible(
-      key: Key(date),
+      key: Key(title),
       direction: DismissDirection.endToStart,
       onDismissed: (direction) {
         setState(() {
-          tasks.remove(date);
+          tasks.remove(title);
         });
       },
       background: Container(
@@ -56,20 +60,20 @@ class _TodoListPageState extends State<TodoListPage> {
       child: GestureDetector(
         onTap: () {
           List<Map<String, dynamic>> detailTasks = [];
-          if (tasks.containsKey(date)) {
-            for (int i = 0; i < tasks[date]![0].length; i++) {
+          if (tasks.containsKey(title)) {
+            for (int i = 0; i < tasks[title]!['subject'].length; i++) {
               detailTasks.add({
-                'subject': 'กิจกรรม ${i + 1}',
-                'status': taskList[0][i],
-                'details': 'รายละเอียดของกิจกรรม ${i + 1}...',
+                'subject': tasks[title]!['subject'][i],
+                'details': tasks[title]!['details'],
+                'status': tasks[title]!['status'][i],
               });
             }
           }
           // ดึงข้อมูล subject จาก newTask
           List<String> subjects = [];
-          if (tasks.containsKey(date)) {
-            for (int i = 0; i < tasks[date]![0].length; i++) {
-              subjects.add('กิจกรรม ${i + 1}');
+          if (tasks.containsKey(title)) {
+            for (int i = 0; i < tasks[title]!['subject'].length; i++) {
+              subjects.add(tasks[title]!['subject'][i]);
             }
           }
           // สร้าง detailTasks โดยใช้ข้อมูล subject ที่ผู้ใช้กรอก
@@ -77,21 +81,22 @@ class _TodoListPageState extends State<TodoListPage> {
           for (int i = 0; i < subjects.length; i++) {
             detailTasks.add({
               'subject': subjects[i],
-              'status': taskList[0][i],
-              'details':
-                  'รายละเอียดของ ${subjects[i]}...', // แก้ไขรายละเอียดตามต้องการ
+              'status': taskList['status'][i],
+              'details': taskList['details'][i],
+              'images': taskList['images']
             });
           }
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => DetailPage(
-                date: date,
+                date: title,
                 tasks: detailTasks,
               ),
             ),
           );
         },
+        //กล่องtodo
         child: Container(
           margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           padding: EdgeInsets.all(16),
@@ -110,7 +115,7 @@ class _TodoListPageState extends State<TodoListPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Date $date',
+                '$title',
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
@@ -120,14 +125,14 @@ class _TodoListPageState extends State<TodoListPage> {
               SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: List.generate(taskList[0].length, (subIndex) {
+                children: List.generate(taskList['subject'].length, (subIndex) {
                   return Column(
                     children: [
                       Checkbox(
-                        value: taskList[0][subIndex],
+                        value: taskList['status'][subIndex],
                         onChanged: (bool? value) {
                           setState(() {
-                            taskList[0][subIndex] = value!;
+                            taskList['status'][subIndex] = value!;
                           });
                         },
                         activeColor: Color(0xFF51D11A),
@@ -138,7 +143,7 @@ class _TodoListPageState extends State<TodoListPage> {
                       ),
                       SizedBox(height: 4),
                       Text(
-                        'กิจกรรม ${subIndex + 1}',
+                        '${taskList['subject'][subIndex]}',
                         textAlign: TextAlign.center,
                         style: TextStyle(fontSize: 12),
                       ),

@@ -6,21 +6,52 @@ import 'dart:convert';
 import 'package:image_picker/image_picker.dart';
 
 class AddTaskPage extends StatefulWidget {
+  String? title;
+  String? date;
+  List<Map<String, dynamic>>? tasks;
+
+  AddTaskPage({
+    this.title,
+    this.date,
+    this.tasks,
+  });
   @override
   _AddTaskPageState createState() => _AddTaskPageState();
 }
 
 class _AddTaskPageState extends State<AddTaskPage> {
   final _formKey = GlobalKey<FormState>();
-  final _dateController = TextEditingController();
   final _titleController = TextEditingController();
+  final _dateController = TextEditingController();
   final _newSubjectController = TextEditingController();
   final _newDetailstController = TextEditingController();
   List<File?> _newImagesSelected = [];
-  List<bool> _subjectStatus = [];
-  List<String> _subjects = [];
-  List<String> _details = [];
-  List<List<File?>> _images = []; // to store image
+  final List<String> _subjects = [];
+  final List<bool> _subjectStatus = [];
+  final List<String> _details = [];
+  final List<List<File?>> _images = []; // to store image
+
+  void init() {
+    if (widget.title != null) {
+      _titleController.text = widget.title!;
+      widget.title = null;
+    }
+
+    if (widget.date != null) {
+      _dateController.text = widget.date!;
+      widget.date = null;
+    }
+
+    if (widget.tasks != null) {
+      for (var i = 0; i < widget.tasks!.length; i++) {
+        _subjects.add(widget.tasks?[i]['subject']);
+        _subjectStatus.add(widget.tasks?[i]['status']);
+        _details.add(widget.tasks?[i]['details']);
+        _images.add(widget.tasks?[i]['images']);
+      }
+      widget.tasks = null;
+    }
+  }
 
   void _addSubject() {
     setState(() {
@@ -65,29 +96,61 @@ class _AddTaskPageState extends State<AddTaskPage> {
     });
   }
 
-  Future<void> _saveTaskData() async {
-    final prefs = await SharedPreferences.getInstance();
-    Map<String, dynamic> taskData = {
-      'title': _titleController.text,
-      'date': _dateController.text,
-      'subjects': _subjects,
-      'details': _details,
-      'status': _subjectStatus.map((status) => status.toString()).toList(),
-      'images': _images
-          .map((imageList) => imageList.map((file) => file?.path).toList())
-          .toList(),
-    };
-    await prefs.setString('task_data', jsonEncode(taskData));
+  // ฟังก์ชันแก้ไขกิจกรรมย่อย
+  void _editSubject(int index) {
+    TextEditingController editSubjectController =
+        TextEditingController(text: _subjects[index]);
+    TextEditingController editDetailController =
+        TextEditingController(text: _details[index]);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('แก้ไขกิจกรรม'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: editSubjectController,
+                decoration: InputDecoration(labelText: 'กิจกรรม'),
+              ),
+              TextField(
+                controller: editDetailController,
+                decoration: InputDecoration(labelText: 'รายละเอียด'),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('ยกเลิก'),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  _subjects[index] = editSubjectController.text;
+                  _details[index] = editDetailController.text;
+                });
+                Navigator.pop(context);
+              },
+              child: Text('บันทึก'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    init();
     return Scaffold(
       backgroundColor: Color(0xFF233F72),
       appBar: AppBar(
         backgroundColor: Color(0xFF233F72),
         elevation: 0,
-        title: Text('เพิ่มกิจกรรม'),
+        title: Text(''),
         titleTextStyle: TextStyle(color: Colors.white, fontSize: 24),
       ),
       body: Padding(
@@ -241,6 +304,10 @@ class _AddTaskPageState extends State<AddTaskPage> {
                               },
                             ),
                             IconButton(
+                              icon: Icon(Icons.edit), // ปุ่มแก้ไข
+                              onPressed: () => _editSubject(index),
+                            ),
+                            IconButton(
                               icon: Icon(Icons.delete),
                               onPressed: () => _removeSubject(index),
                             ),
@@ -249,14 +316,6 @@ class _AddTaskPageState extends State<AddTaskPage> {
                       ),
                     );
                   },
-                ),
-              ),
-              SizedBox(height: 16),
-              Align(
-                alignment: Alignment.centerRight,
-                child: ElevatedButton(
-                  onPressed: _addSubject,
-                  child: Icon(Icons.add),
                 ),
               ),
             ],
@@ -269,7 +328,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             IconButton(
-              icon: Icon(Icons.list, color: Colors.white),
+              icon: Icon(Icons.save, color: Colors.white),
               onPressed: () {
                 if (_formKey.currentState!.validate()) {
                   Navigator.pop(context, {

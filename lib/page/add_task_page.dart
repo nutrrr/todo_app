@@ -103,40 +103,115 @@ class _AddTaskPageState extends State<AddTaskPage> {
     TextEditingController editDetailController =
         TextEditingController(text: _details[index]);
 
+    // คัดลอกรูปภาพสำหรับแก้ไข
+    List<File?> tempImages = List.from(_images[index]);
+
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: Text('แก้ไขกิจกรรม'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: editSubjectController,
-                decoration: InputDecoration(labelText: 'กิจกรรม'),
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            void removeImageInDialog(int imgIndex) {
+              setStateDialog(() {
+                tempImages.removeAt(imgIndex);
+              });
+            }
+
+            Future<void> pickImageInDialog() async {
+              final imagePicker = ImagePicker();
+              final pickedImage =
+                  await imagePicker.pickImage(source: ImageSource.gallery);
+              if (pickedImage == null) return;
+              setStateDialog(() {
+                tempImages.add(File(pickedImage.path));
+              });
+            }
+
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
               ),
-              TextField(
-                controller: editDetailController,
-                decoration: InputDecoration(labelText: 'รายละเอียด'),
+              child: Container(
+                width: 380, // กำหนดความกว้าง 380px
+                height: 600, // กำหนดความสูง 600px
+                padding: EdgeInsets.all(16),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        "แก้ไขกิจกรรม",
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 10),
+                      TextField(
+                        controller: editSubjectController,
+                        decoration: InputDecoration(labelText: 'กิจกรรม'),
+                      ),
+                      TextField(
+                        controller: editDetailController,
+                        decoration: InputDecoration(labelText: 'รายละเอียด'),
+                      ),
+                      SizedBox(height: 10),
+
+                      // แสดงรูปภาพใน GridView
+                      Container(
+                        height: 150, // จำกัดความสูง
+                        child: GridView.builder(
+                          shrinkWrap: true,
+                          physics: BouncingScrollPhysics(),
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            crossAxisSpacing: 8,
+                            mainAxisSpacing: 8,
+                          ),
+                          itemCount: tempImages.length,
+                          itemBuilder: (context, imgIndex) {
+                            return GestureDetector(
+                              onTap: () => removeImageInDialog(imgIndex),
+                              child: Image.file(tempImages[imgIndex]!,
+                                  fit: BoxFit.cover),
+                            );
+                          },
+                        ),
+                      ),
+
+                      SizedBox(height: 10),
+                      ElevatedButton.icon(
+                        onPressed: pickImageInDialog,
+                        icon: Icon(Icons.add_a_photo),
+                        label: Text('เพิ่มรูป'),
+                      ),
+                      SizedBox(height: 10),
+
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: Text('ยกเลิก'),
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              setState(() {
+                                _subjects[index] = editSubjectController.text;
+                                _details[index] = editDetailController.text;
+                                _images[index] = List.from(tempImages);
+                              });
+                              Navigator.pop(context);
+                            },
+                            child: Text('บันทึก'),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('ยกเลิก'),
-            ),
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  _subjects[index] = editSubjectController.text;
-                  _details[index] = editDetailController.text;
-                });
-                Navigator.pop(context);
-              },
-              child: Text('บันทึก'),
-            ),
-          ],
+            );
+          },
         );
       },
     );
@@ -146,7 +221,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
   Widget build(BuildContext context) {
     init();
     return Scaffold(
-      backgroundColor: Color(0xFF233F72),
+      backgroundColor: Color.fromRGBO(35, 63, 114, 1),
       appBar: AppBar(
         backgroundColor: Color(0xFF233F72),
         elevation: 0,
@@ -198,7 +273,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
                 decoration: BoxDecoration(
-                  color: Colors.blueGrey[200],
+                  color: Color(0xFFB0C4DE),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: SingleChildScrollView(
@@ -261,31 +336,35 @@ class _AddTaskPageState extends State<AddTaskPage> {
                       margin:
                           EdgeInsets.symmetric(horizontal: 0.0, vertical: 3.0),
                       decoration: BoxDecoration(
-                        color: Colors.blueGrey[200],
+                        color: Color(0xFFB0C4DE),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: ListTile(
                         title: Text(_subjects[index]),
                         subtitle: Column(
                           children: [
-                            Text(_details[index]),
+                            Container(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  _details[index],
+                                )),
                             //รูป
                             SizedBox(
-                              height: _images[index].length == 0 ? 0 : 100,
+                              height: _images[index].isEmpty
+                                  ? 0
+                                  : 80, // Increase height
                               child: GridView.builder(
                                 itemCount: _images[index].length,
                                 gridDelegate:
                                     SliverGridDelegateWithFixedCrossAxisCount(
                                   crossAxisCount: 3,
-                                  crossAxisSpacing: 8,
-                                  mainAxisSpacing: 8,
+                                  crossAxisSpacing: 8, // Increase spacing
+                                  mainAxisSpacing: 8, // Increase spacing
                                 ),
                                 itemBuilder: (context, imgIndex) {
                                   return Image.file(
                                     _images[index][imgIndex]!,
-                                    fit: BoxFit.cover,
-                                    width: 64,
-                                    height: 64,
+                                    fit: BoxFit.cover, // or BoxFit.contain
                                   );
                                 },
                               ),

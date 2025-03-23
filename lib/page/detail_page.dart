@@ -112,8 +112,6 @@ class _DetailPageState extends State<DetailPage> {
                                 return Image.file(
                                   task['images'][imgIndex]!,
                                   fit: BoxFit.cover,
-                                  width: 64,
-                                  height: 64,
                                 );
                               },
                             ),
@@ -122,8 +120,8 @@ class _DetailPageState extends State<DetailPage> {
                       ),
                       trailing: Checkbox(
                         value: task['status'],
-                        activeColor: Color(0xFF7B68EE),
-                        checkColor: Colors.white,
+                        activeColor: Color(0xFF51D11A),
+                        checkColor: Colors.black,
                         onChanged: (value) {
                           setState(() {
                             updatedTasks[index]['status'] = value!;

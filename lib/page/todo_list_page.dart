@@ -123,7 +123,7 @@ class _TodoListPageState extends State<TodoListPage> {
           margin: EdgeInsets.symmetric(horizontal: 8, vertical: 5),
           padding: EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: Color(0xFFE9EFF5),
+            color: Color.fromRGBO(233, 239, 245, 1),
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
@@ -225,7 +225,7 @@ class _TodoListPageState extends State<TodoListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF233F72),
+      backgroundColor: Color.fromRGBO(35, 63, 114, 1),
       appBar: AppBar(
         backgroundColor: Color(0xFF233F72),
         elevation: 0,

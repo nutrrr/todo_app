@@ -151,7 +151,10 @@ class _TodoListPageState extends State<TodoListPage> {
                   if (totalTasks > 3)
                     IconButton(
                       icon: Icon(Icons.arrow_back,
-                          size: 18, color: Colors.black54),
+                          size: 18,
+                          color: _currentPage > 0
+                              ? Colors.black54
+                              : const Color.fromRGBO(0, 0, 0, 0)),
                       onPressed: _currentPage > 0
                           ? () {
                               setState(() {
@@ -204,7 +207,10 @@ class _TodoListPageState extends State<TodoListPage> {
                   if (totalTasks > 3)
                     IconButton(
                       icon: Icon(Icons.arrow_forward,
-                          size: 18, color: Colors.black54),
+                          size: 18,
+                          color: _currentPage + _tasksPerPage < totalTasks
+                              ? Colors.black54
+                              : const Color.fromRGBO(0, 0, 0, 0)),
                       onPressed: _currentPage + _tasksPerPage < totalTasks
                           ? () {
                               setState(() {
